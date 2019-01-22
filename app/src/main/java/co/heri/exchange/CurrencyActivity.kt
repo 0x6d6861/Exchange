@@ -70,7 +70,7 @@ class CurrencyActivity : AppCompatActivity() {
                 val textoutput = br.use(BufferedReader::readText)
 
                 val currenciesList: CurrencyList = gson.fromJson(textoutput, CurrencyList::class.java)
-                Log.e("PARSED_", currenciesList.currencies.toString())
+                //Log.e("PARSED_", currenciesList.currencies.toString())
 
                 this.list_currency_adapter = CurrencyRecycler(currenciesList.currencies!!)
 
@@ -81,7 +81,7 @@ class CurrencyActivity : AppCompatActivity() {
 
             }
 
-        
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -75,18 +75,13 @@ class CurrencyActivity : AppCompatActivity() {
                 this.list_currency_adapter = CurrencyRecycler(currenciesList.currencies!!)
 
                 runOnUiThread {
+                    progressbarContainer.visibility = View.GONE
                     currency_list.adapter = this.list_currency_adapter
                 }
 
             }
 
-
-
-
-
-
-        //Log.e("CURRENCIES", currencies.toString())
-
+        
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

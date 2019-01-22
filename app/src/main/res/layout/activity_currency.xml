@@ -8,19 +8,41 @@
 
 
     <!-- Your scrolling content -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@android:color/white"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:showIn="@layout/activity_currency">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/currency_list"
+
+    <LinearLayout
+        android:id="@+id/progressbarContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:listitem="@layout/currency_item" />
-    </androidx.core.widget.NestedScrollView>
+            android:text="Loading currencies"
+            android:textAlignment="center"
+            android:textSize="18sp" />
+
+        <ProgressBar
+            android:id="@+id/progressBar2"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/currency_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/currency_item"
+        tools:showIn="@layout/activity_currency">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
 
     <com.google.android.material.appbar.AppBarLayout

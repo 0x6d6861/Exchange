@@ -3,17 +3,53 @@ package co.heri.exchange.Model
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
-import co.heri.exchange.R
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlinx.android.synthetic.main.currency_item.view.*
 import java.util.*
+import co.heri.exchange.R
+import kotlin.collections.ArrayList
 
 
-class CurrencyRecycler : RecyclerView.Adapter<CurrencyRecycler.CurrencyHolder>() {
+class CurrencyRecycler(private val data: List<Currency>) : RecyclerView.Adapter<CurrencyRecycler.CurrencyHolder>(), Filterable {
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(charSequence: CharSequence): Filter.FilterResults {
+                val charString = charSequence.toString()
+                if (charString.isEmpty()) {
+                    filteredData = data
+                } else {
+                    if(charString.length >= 2) {
+                        val filteredList = ArrayList<Currency>()
+                        for (row in data) {
 
-    private var data: List<Currency> = ArrayList()
+                            // name match condition. this might differ depending on your requirement
+                            // here we are looking for name or phone number match
+                            if (row.currency!!.toLowerCase().contains(charString.toLowerCase()) || row.alphabeticCode!!.contains(charSequence)) {
+                                filteredList.add(row)
+                            }
+                        }
+
+                        filteredData = filteredList
+                    }
+                }
+
+                val filterResults = Filter.FilterResults()
+                filterResults.values = filteredData
+                return filterResults
+            }
+
+            override fun publishResults(charSequence: CharSequence, filterResults: Filter.FilterResults) {
+                filteredData = filterResults.values as ArrayList<Currency>
+                notifyDataSetChanged()
+            }
+        }
+    }
+
+    //private var data: List<Currency> = ArrayList()
+    private var filteredData: List<Currency> = this.data
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrencyHolder {
         return CurrencyHolder(
@@ -22,14 +58,11 @@ class CurrencyRecycler : RecyclerView.Adapter<CurrencyRecycler.CurrencyHolder>()
         )
     }
 
-    override fun getItemCount() = data.size
+    override fun getItemCount() = filteredData.size
 
-    override fun onBindViewHolder(holder: CurrencyHolder, position: Int) = holder.bind(data[position])
+    override fun onBindViewHolder(holder: CurrencyHolder, position: Int) = holder.bind(filteredData[position])
 
-    fun swapData(data: List<Currency>) {
-        this.data = data
-        notifyDataSetChanged()
-    }
+
 
     class CurrencyHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: Currency) = with(itemView) {

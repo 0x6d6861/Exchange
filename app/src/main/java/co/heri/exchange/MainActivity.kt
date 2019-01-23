@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         change_link.setOnClickListener { view ->
-            showDiag(view.context);
+            showDiag(this);
         }
     }
 
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
 
 
         builder.setTitle("Select Currency")
-                .setPositiveButton("Okay"
+                /*.setPositiveButton("Okay"
                 ) { dialog, id ->
                     //mListener.onDialogPositiveClick(this)
 
@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                 ) { dialog, id ->
                     // mListener.onDialogNegativeClick(this)
                     dialog.cancel()
-                }
+                }*/
 
         builder.create()
         builder.show()

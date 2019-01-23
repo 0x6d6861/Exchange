@@ -20,7 +20,6 @@ import android.view.*
 
 
 
-
 class CurrencyActivity : AppCompatActivity() {
 
 

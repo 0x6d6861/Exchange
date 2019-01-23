@@ -1,9 +1,12 @@
 package co.heri.exchange
 
+import android.app.Dialog
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import co.heri.exchange.Model.Country
@@ -14,6 +17,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import co.heri.exchange.Model.Dao.DBHelper
 import kotlin.concurrent.thread
+import co.heri.exchange.R
 
 
 class MainActivity : AppCompatActivity() {
@@ -48,7 +52,8 @@ class MainActivity : AppCompatActivity() {
 
         list_currencies.addItemDecoration(DividerItemDecoration(this, 0))
         fab.setOnClickListener { view ->
-            startActivity(Intent(this, CurrencyActivity::class.java))
+            showDiag(view.context);
+            //startActivity(Intent(this, CurrencyActivity::class.java))
         }
     }
 
@@ -66,5 +71,30 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+
+    private fun showDiag(context: Context) {
+
+        val builder = AlertDialog.Builder(context)
+
+        builder.setView(layoutInflater.inflate(R.layout.currency_select, null))
+
+
+        builder.setTitle("Select Currency")
+                .setPositiveButton("Okay"
+                ) { dialog, id ->
+                    //mListener.onDialogPositiveClick(this)
+
+                }
+                .setNegativeButton("Cancel"
+                ) { dialog, id ->
+                    // mListener.onDialogNegativeClick(this)
+                    dialog.cancel()
+                }
+
+        builder.create()
+        builder.show()
+
     }
 }

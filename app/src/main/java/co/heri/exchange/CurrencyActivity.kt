@@ -2,31 +2,23 @@ package co.heri.exchange
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
 import co.heri.exchange.Model.CurrencyList
 import co.heri.exchange.Model.CurrencyRecycler
-import co.heri.exchange.Model.Dao.CurrencyDao
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_currency.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import com.google.gson.GsonBuilder
 import kotlin.concurrent.thread
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.core.view.MenuItemCompat.getActionView
-import android.content.Context.SEARCH_SERVICE
-import androidx.core.content.ContextCompat.getSystemService
 import android.app.SearchManager
 import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.widget.SearchView
-import android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 import android.os.Build
-import android.util.Log
-import android.view.View
+import android.view.*
+
+
 
 
 class CurrencyActivity : AppCompatActivity() {
@@ -143,4 +135,7 @@ class CurrencyActivity : AppCompatActivity() {
             window.statusBarColor = Color.WHITE
         }
     }
+
+
+
 }

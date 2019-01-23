@@ -25,6 +25,10 @@
         <item name="isLightTheme">true</item>
     </style>
 
+    <style name="AppTheme.Dialog" parent="Theme.MaterialComponents.Dialog">
+        <item name="android:background">@android:color/white</item>
+    </style>
+
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
 </resources>

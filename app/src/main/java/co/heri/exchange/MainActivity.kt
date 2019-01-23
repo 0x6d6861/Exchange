@@ -52,8 +52,11 @@ class MainActivity : AppCompatActivity() {
 
         list_currencies.addItemDecoration(DividerItemDecoration(this, 0))
         fab.setOnClickListener { view ->
+            startActivity(Intent(this, CurrencyActivity::class.java))
+        }
+
+        change_link.setOnClickListener { view ->
             showDiag(view.context);
-            //startActivity(Intent(this, CurrencyActivity::class.java))
         }
     }
 

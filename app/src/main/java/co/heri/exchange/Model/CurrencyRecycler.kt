@@ -67,6 +67,7 @@ class CurrencyRecycler(private val data: List<Currency>) : RecyclerView.Adapter<
     class CurrencyHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: Currency) = with(itemView) {
 
+            checked.visibility = View.GONE
 
             Glide.with(context)
                     .load(item.flagpng!!.toLowerCase())
@@ -76,8 +77,16 @@ class CurrencyRecycler(private val data: List<Currency>) : RecyclerView.Adapter<
             // TODO: Bind the data with View
             currency.text = item.alphabeticCode
             name.text = item.currency
+
+
+
             setOnClickListener {
-                // TODO: Handle on click
+                if(item.selected){
+                    checked.visibility = View.VISIBLE
+                } else {
+                    checked.visibility = View.GONE
+                }
+                item.selected = !item.selected
             }
         }
     }

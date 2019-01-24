@@ -1,8 +1,6 @@
 package co.heri.exchange
 
-import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -79,7 +77,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun showDiag(context: Context) {
 
-        val builder = AlertDialog.Builder(context)
+
+        val builder = AlertDialog.Builder(context, R.style.AppTheme_Dialog)
 
         builder.setView(layoutInflater.inflate(R.layout.currency_select, null))
 

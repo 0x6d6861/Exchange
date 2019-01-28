@@ -70,7 +70,7 @@ class CurrencyRecycler(private val data: List<Currency>) : RecyclerView.Adapter<
             checked.visibility = View.GONE
 
             Glide.with(context)
-                    .load(item.flagpng!!.toLowerCase())
+                    .load(item.flagpng)
                     .into(flag)
 
 

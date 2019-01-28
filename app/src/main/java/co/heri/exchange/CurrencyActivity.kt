@@ -16,8 +16,10 @@ import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.widget.SearchView
 import android.os.Build
+import android.util.Log
 import android.view.*
-
+import co.heri.exchange.Model.Retrofit.Api
+import co.heri.exchange.Model.Retrofit.ServiceClient
 
 
 class CurrencyActivity : AppCompatActivity() {
@@ -57,13 +59,19 @@ class CurrencyActivity : AppCompatActivity() {
 
 
 
-                val br = BufferedReader(InputStreamReader(resources.openRawResource(R.raw.currencies)))
-                val textoutput = br.use(BufferedReader::readText)
+                //val br = BufferedReader(InputStreamReader(resources.openRawResource(R.raw.currencies)))
+                //val textoutput = br.use(BufferedReader::readText)
 
-                val currenciesList: CurrencyList = gson.fromJson(textoutput, CurrencyList::class.java)
-                //Log.e("PARSED_", currenciesList.currencies.toString())
+                val currencyApi = (ServiceClient.getRetrofitInstance(this))!!.create(Api::class.java)
+                val currenciesList = currencyApi.getcurrencies.execute().body()
 
-                this.list_currency_adapter = CurrencyRecycler(currenciesList.currencies!!)
+                //val currenciesList: CurrencyList = gson.fromJson(textoutput, CurrencyList::class.java)
+//                Log.e("PARSED_", currenciesList.currencies.toString())
+                //Log.e("PARSED_", currenciesList.toString())
+
+//                this.list_currency_adapter = CurrencyRecycler(currenciesList.currencies!!)
+                this.list_currency_adapter = CurrencyRecycler(currenciesList!!)
+
 
                 runOnUiThread {
                     progressbarContainer.visibility = View.GONE

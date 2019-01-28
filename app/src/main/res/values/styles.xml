@@ -26,7 +26,7 @@
     </style>
 
     <style name="AppTheme.Dialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="android:windowBackground">@xml/background_dialog</item>
+        <!--<item name="android:windowBackground">@xml/background_dialog</item>-->
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />

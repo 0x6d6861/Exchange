@@ -3,11 +3,8 @@ package co.heri.exchange
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
-import co.heri.exchange.Model.CurrencyList
 import co.heri.exchange.Model.CurrencyRecycler
 import kotlinx.android.synthetic.main.activity_currency.*
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import com.google.gson.GsonBuilder
 import kotlin.concurrent.thread
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -16,10 +13,12 @@ import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.widget.SearchView
 import android.os.Build
-import android.util.Log
 import android.view.*
 import co.heri.exchange.Model.Retrofit.Api
 import co.heri.exchange.Model.Retrofit.ServiceClient
+import androidx.room.Room
+import co.heri.exchange.Model.Dao.AppDatabase
+import co.heri.exchange.Model.Dao.DBHelper
 
 
 class CurrencyActivity : AppCompatActivity() {
@@ -27,6 +26,7 @@ class CurrencyActivity : AppCompatActivity() {
 
     private lateinit var searchView: SearchView
     private lateinit var list_currency_adapter: CurrencyRecycler
+    private lateinit var database: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +50,13 @@ class CurrencyActivity : AppCompatActivity() {
 
             thread {
 
+                //DBHelper(this).readableDatabase
+
+                this.database = Room.databaseBuilder(applicationContext,
+                        AppDatabase::class.java, "database.db")
+                        .build()
+
+
                 /*val database = Room.databaseBuilder(this, AppDatabase::class.java, "app.db")
                         .build();
 
@@ -70,7 +77,7 @@ class CurrencyActivity : AppCompatActivity() {
                 //Log.e("PARSED_", currenciesList.toString())
 
 //                this.list_currency_adapter = CurrencyRecycler(currenciesList.currencies!!)
-                this.list_currency_adapter = CurrencyRecycler(currenciesList!!)
+                this.list_currency_adapter = CurrencyRecycler(currenciesList!!, this.database)
 
 
                 runOnUiThread {

@@ -6,14 +6,15 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
+import co.heri.exchange.Model.Dao.AppDatabase
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.currency_item.view.*
-import java.util.*
 import co.heri.exchange.R
 import kotlin.collections.ArrayList
+import kotlin.concurrent.thread
 
 
-class CurrencyRecycler(private val data: List<Currency>) : RecyclerView.Adapter<CurrencyRecycler.CurrencyHolder>(), Filterable {
+class CurrencyRecycler(private val data: List<Currency>, private val database: AppDatabase) : RecyclerView.Adapter<CurrencyRecycler.CurrencyHolder>(), Filterable {
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSequence: CharSequence): Filter.FilterResults {
@@ -50,10 +51,11 @@ class CurrencyRecycler(private val data: List<Currency>) : RecyclerView.Adapter<
 
     //private var data: List<Currency> = ArrayList()
     private var filteredData: List<Currency> = this.data
+    private var savedCurrencies: List<Currency> = database.currencyDao().getCurrencies()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrencyHolder {
         return CurrencyHolder(
-                LayoutInflater.from(parent.context)
+                itemView = LayoutInflater.from(parent.context)
                         .inflate(R.layout.currency_item, parent, false)
         )
     }
@@ -64,10 +66,19 @@ class CurrencyRecycler(private val data: List<Currency>) : RecyclerView.Adapter<
 
 
 
-    class CurrencyHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class CurrencyHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: Currency) = with(itemView) {
 
-            checked.visibility = View.GONE
+
+            val selected = savedCurrencies.any { x -> x.alphabeticCode == item.alphabeticCode }
+
+            if(selected){
+                checked.visibility = View.VISIBLE
+                item.selected = true
+            }else{
+                checked.visibility = View.GONE
+                item.selected = false
+            }
 
             Glide.with(context)
                     .load(item.flagpng)
@@ -79,14 +90,20 @@ class CurrencyRecycler(private val data: List<Currency>) : RecyclerView.Adapter<
             name.text = item.currency
 
 
-
             setOnClickListener {
-                if(item.selected){
-                    checked.visibility = View.VISIBLE
-                } else {
-                    checked.visibility = View.GONE
-                }
                 item.selected = !item.selected
+
+                if(item.selected){
+                    thread {
+                        database.currencyDao().delete(item)
+                    }
+                    checked.visibility = View.GONE
+                } else {
+                    thread {
+                        database.currencyDao().insert(item)
+                    }
+                    checked.visibility = View.VISIBLE
+                }
             }
         }
     }

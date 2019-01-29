@@ -3,6 +3,7 @@ package co.heri.exchange
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +14,8 @@ import co.heri.exchange.Model.CountryRecyclerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.room.Room
+import co.heri.exchange.Model.Dao.AppDatabase
 import co.heri.exchange.Model.Dao.DBHelper
 import kotlin.concurrent.thread
 import co.heri.exchange.R
@@ -20,13 +23,29 @@ import co.heri.exchange.R
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var database: AppDatabase
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
         thread {
-            DBHelper(this).readableDatabase
+            // DBHelper(this).readableDatabase
+            this.database = Room.databaseBuilder(applicationContext,
+                    AppDatabase::class.java, "database.db")
+                    .build()
+
+            var saved = this.database.currencyDao().getCurrencies();
+
+            var currencies:List<Country>
+
+            for(currency in saved){
+
+            }
+
+            Log.e("SAVED_", saved.toString())
         }
 
         var currencies = listOf<Country>(

@@ -2,12 +2,18 @@ package co.heri.exchange.Model.Dao
 
 import androidx.room.*
 import co.heri.exchange.Model.Currency
+import androidx.room.OnConflictStrategy
+
+
 
 @Dao
 interface CurrencyDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(currencies: List<Currency>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(currency: Currency)
 
     @Update
     fun update(currency: Currency)

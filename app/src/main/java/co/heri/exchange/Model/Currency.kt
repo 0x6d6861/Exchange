@@ -1,5 +1,6 @@
 package co.heri.exchange.Model
 
+import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -7,8 +8,7 @@ import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "currencies")
 data class Currency(
-		@PrimaryKey(autoGenerate = true)
-	var id: Int = 0,
+
 
 
 		@field:SerializedName("Entity")
@@ -31,13 +31,15 @@ data class Currency(
         @ColumnInfo(name = "currency")
 	val currency: String? = null,
 
+        @PrimaryKey()
+		@NonNull
 		@field:SerializedName("AlphabeticCode")
         @ColumnInfo(name = "alphabeticCode")
-	val alphabeticCode: String? = null,
+	val alphabeticCode: String,
 
 		@field:SerializedName("WithdrawalDate")
         @ColumnInfo(name = "withdrawalDate")
-	val withdrawalDate: String? = null,
+	val withdrawalDate: String?,
 
 		@field:SerializedName("MinorUnit")
         @ColumnInfo(name = "minorUnit")

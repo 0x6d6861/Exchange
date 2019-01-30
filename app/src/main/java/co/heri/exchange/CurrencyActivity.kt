@@ -17,23 +17,25 @@ import android.view.*
 import co.heri.exchange.Model.Retrofit.Api
 import co.heri.exchange.Model.Retrofit.ServiceClient
 import androidx.room.Room
+import co.heri.exchange.Model.Currency
 import co.heri.exchange.Model.Dao.AppDatabase
-import co.heri.exchange.Model.Dao.DBHelper
 
 
 class CurrencyActivity : AppCompatActivity() {
 
-
     private lateinit var searchView: SearchView
     private lateinit var list_currency_adapter: CurrencyRecycler
     private lateinit var database: AppDatabase
+    private lateinit var currencyApi: Api
+    private lateinit var currenciesList: List<Currency>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_currency)
         setSupportActionBar(search_toolbar)
 
-
+        this.currencyApi = (ServiceClient.getRetrofitInstance(this))!!.create(Api::class.java)
 
         if (supportActionBar != null){
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -43,51 +45,43 @@ class CurrencyActivity : AppCompatActivity() {
 
         }
 
-        val gson = GsonBuilder().create()
-
         currency_list.layoutManager = LinearLayoutManager(this)
         currency_list.itemAnimator = DefaultItemAnimator()
 
-            thread {
+        thread {
 
-                //DBHelper(this).readableDatabase
+            this.database = Room.databaseBuilder(applicationContext,
+                    AppDatabase::class.java, "database.db")
+                    .fallbackToDestructiveMigration()
+                    .build()
 
-                this.database = Room.databaseBuilder(applicationContext,
-                        AppDatabase::class.java, "database.db")
-                        .build()
-
-
-                /*val database = Room.databaseBuilder(this, AppDatabase::class.java, "app.db")
-                        .build();
-
-                currencyDao = database.currencyDao()
-
-                var currencies = currencyDao.getCurrencies();*/
+        }
 
 
+    }
 
-                //val br = BufferedReader(InputStreamReader(resources.openRawResource(R.raw.currencies)))
-                //val textoutput = br.use(BufferedReader::readText)
+    override fun onDestroy() {
+        this.database.close()
+        super.onDestroy()
+    }
 
-                val currencyApi = (ServiceClient.getRetrofitInstance(this))!!.create(Api::class.java)
-                val currenciesList = currencyApi.getcurrencies.execute().body()
+    override fun onResume() {
+        super.onResume()
 
-                //val currenciesList: CurrencyList = gson.fromJson(textoutput, CurrencyList::class.java)
-//                Log.e("PARSED_", currenciesList.currencies.toString())
-                //Log.e("PARSED_", currenciesList.toString())
+        thread {
 
-//                this.list_currency_adapter = CurrencyRecycler(currenciesList.currencies!!)
-                this.list_currency_adapter = CurrencyRecycler(currenciesList!!, this.database)
+            this.currenciesList = this.currencyApi.getcurrencies.execute().body() ?: emptyList()
 
 
-                runOnUiThread {
-                    progressbarContainer.visibility = View.GONE
-                    currency_list.adapter = this.list_currency_adapter
-                }
+            this.list_currency_adapter = CurrencyRecycler(this.currenciesList, this.database)
 
+
+            runOnUiThread {
+                progressbarContainer.visibility = View.GONE
+                currency_list.adapter = this.list_currency_adapter
             }
 
-
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

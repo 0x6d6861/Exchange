@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.room.Room
+import co.heri.exchange.Model.Currency
 import co.heri.exchange.Model.Dao.AppDatabase
 import co.heri.exchange.Model.Dao.DBHelper
 import kotlin.concurrent.thread
@@ -24,6 +25,8 @@ import co.heri.exchange.R
 class MainActivity : AppCompatActivity() {
 
     private lateinit var database: AppDatabase
+    private lateinit var savedCurrencies: List<Currency>
+    private lateinit var list_country_adapter: CountryRecyclerAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,41 +34,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        thread {
-            // DBHelper(this).readableDatabase
-            this.database = Room.databaseBuilder(applicationContext,
-                    AppDatabase::class.java, "database.db")
-                    .build()
-
-            var saved = this.database.currencyDao().getCurrencies();
-
-            var currencies:List<Country>
-
-            for(currency in saved){
-
-            }
-
-            Log.e("SAVED_", saved.toString())
-        }
-
-        var currencies = listOf<Country>(
-                Country(name = "United Kingdom Pound", iso = "GB", currency = "GBP", amount = "658.45"),
-//                Country(name = "Hong Kong dollar", iso = "HK", currency = "HKD", amount = "854.78"),
-//                Country(name = "Canadian dollar", iso = "CA", currency = "CAD", amount = "258.13"),
-                Country(name = "United Arab Emirates dirham", iso = "AE", currency = "AED", amount = "789.58"),
-//                Country(name = "Japanese yen", iso = "JP", currency = "JPY", amount = "369.12"),
-                Country(name = "Australian dollar", iso = "AU", currency = "AUD", amount = "489.78"),
-                Country(name = "Russian ruble", iso = "RU", currency = "RUB", amount = "489.78"),
-                Country(name = "United States dollar", iso = "US", currency = "USD", amount = "659.05")
-        )
-
-        var list_country_adapter = CountryRecyclerAdapter()
-
 
         list_currencies.layoutManager = LinearLayoutManager(this);
-        list_currencies.adapter = list_country_adapter
+        this.list_country_adapter = CountryRecyclerAdapter()
 
-        list_country_adapter.swapData(currencies)
+
 
         list_currencies.addItemDecoration(DividerItemDecoration(this, 0))
         fab.setOnClickListener { view ->
@@ -74,6 +47,39 @@ class MainActivity : AppCompatActivity() {
 
         change_link.setOnClickListener { view ->
             showDiag(this);
+        }
+    }
+
+    override fun onDestroy() {
+        this.database.close()
+        super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        thread {
+            // DBHelper(this).readableDatabase
+            this.database = Room.databaseBuilder(applicationContext,
+                    AppDatabase::class.java, "database.db")
+                    .fallbackToDestructiveMigration()
+                    .build()
+
+            this.savedCurrencies = this.database.currencyDao().getCurrencies();
+
+            val currencies: MutableList<Country> = mutableListOf<Country>()
+
+            for(currency in savedCurrencies){
+                currencies.add(Country(name = currency.entity ?: "Not set", currency = currency.alphabeticCode, amount = "658.45", flag = currency.flagpng ?: "No flag"))
+            }
+
+
+            //Log.e("SAVED_", currencies.toString())
+
+            runOnUiThread {
+                list_country_adapter.swapData(currencies)
+                list_currencies.adapter = list_country_adapter
+            }
         }
     }
 

@@ -10,6 +10,7 @@ import java.util.*
 import co.heri.exchange.Model.CountryRecyclerAdapter.CountryHolder
 import kotlinx.android.synthetic.main.exhange_item.view.*
 import co.heri.exchange.R
+import com.bumptech.glide.Glide
 
 class CountryRecyclerAdapter : RecyclerView.Adapter<CountryHolder>() {
 
@@ -34,9 +35,11 @@ class CountryRecyclerAdapter : RecyclerView.Adapter<CountryHolder>() {
     class CountryHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: Country) = with(itemView) {
             // TODO: Bind the data with View
-            val resId = resources.getIdentifier("flag_" + item.iso.toLowerCase(), "drawable", itemView.context.packageName)
 
-            country_flag.setImageResource(resId)
+            Glide.with(context)
+                    .load(item.flag)
+                    .into(country_flag)
+
 
             country_flag.post {
                 country.text = item.name

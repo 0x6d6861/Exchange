@@ -9,8 +9,6 @@ import com.google.gson.annotations.SerializedName
 @Entity(tableName = "currencies")
 data class Currency(
 
-
-
 		@field:SerializedName("Entity")
 	@ColumnInfo(name = "entity")
 	val entity: String? = null,
@@ -45,5 +43,6 @@ data class Currency(
         @ColumnInfo(name = "minorUnit")
 	val minorUnit: String? = null,
 
+		@ColumnInfo(name = "selected")
 		var selected: Boolean = false
 )

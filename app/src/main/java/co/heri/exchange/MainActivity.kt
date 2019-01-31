@@ -3,7 +3,6 @@ package co.heri.exchange
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -15,18 +14,20 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.room.Room
+import co.heri.exchange.Model.CountrySelectRecyclerAdapter
 import co.heri.exchange.Model.Currency
 import co.heri.exchange.Model.Dao.AppDatabase
-import co.heri.exchange.Model.Dao.DBHelper
 import kotlin.concurrent.thread
-import co.heri.exchange.R
+import kotlinx.android.synthetic.main.currency_select.view.*
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var database: AppDatabase
-    private lateinit var savedCurrencies: List<Currency>
+    private lateinit var savedCurrencies: MutableList<Currency>
     private lateinit var list_country_adapter: CountryRecyclerAdapter
+    private lateinit var select_country_adapter: CountrySelectRecyclerAdapter
+    private lateinit var selectedCurrency: Currency
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +38,8 @@ class MainActivity : AppCompatActivity() {
 
         list_currencies.layoutManager = LinearLayoutManager(this);
         this.list_country_adapter = CountryRecyclerAdapter()
+
+
 
 
 
@@ -65,9 +68,19 @@ class MainActivity : AppCompatActivity() {
                     .fallbackToDestructiveMigration()
                     .build()
 
-            this.savedCurrencies = this.database.currencyDao().getCurrencies();
+            this.savedCurrencies = this.database.currencyDao().getCurrencies() as MutableList<Currency>
 
-            val currencies: MutableList<Country> = mutableListOf<Country>()
+            val currencies: MutableList<Country> = mutableListOf<Country>();
+
+
+            if(this.savedCurrencies.size > 0){
+                this.selectedCurrency = savedCurrencies.find { it.selected } ?: savedCurrencies.first()
+                this.savedCurrencies.remove(selectedCurrency);
+                runOnUiThread {
+                    currency_desc.text = "${selectedCurrency.alphabeticCode} - ${selectedCurrency.entity}"
+                }
+            }
+
 
             for(currency in savedCurrencies){
                 currencies.add(Country(name = currency.entity ?: "Not set", currency = currency.alphabeticCode, amount = "658.45", flag = currency.flagpng ?: "No flag"))
@@ -79,6 +92,7 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 list_country_adapter.swapData(currencies)
                 list_currencies.adapter = list_country_adapter
+
             }
         }
     }
@@ -105,20 +119,31 @@ class MainActivity : AppCompatActivity() {
 
         val builder = AlertDialog.Builder(context, R.style.AppTheme_Dialog)
 
-        builder.setView(layoutInflater.inflate(R.layout.currency_select, null))
+        val dialogLayout = layoutInflater.inflate(R.layout.currency_select, null)
+
+        builder.setView(dialogLayout)
+
+        val currencies: MutableList<Country> = mutableListOf<Country>();
+
+        for(currency in savedCurrencies){
+            currencies.add(Country(name = currency.entity ?: "Not set", currency = currency.alphabeticCode, amount = "658.45", flag = currency.flagpng ?: "No flag"))
+        }
+
+        dialogLayout.select_country.layoutManager = LinearLayoutManager(this);
+        this.select_country_adapter = CountrySelectRecyclerAdapter();
+
+        runOnUiThread {
+            select_country_adapter.swapData(currencies)
+            dialogLayout.select_country.adapter = select_country_adapter
+        }
 
 
         builder.setTitle("Select Currency")
-                /*.setPositiveButton("Okay"
-                ) { dialog, id ->
-                    //mListener.onDialogPositiveClick(this)
-
-                }
                 .setNegativeButton("Cancel"
                 ) { dialog, id ->
                     // mListener.onDialogNegativeClick(this)
                     dialog.cancel()
-                }*/
+                }
 
         builder.create()
         builder.show()

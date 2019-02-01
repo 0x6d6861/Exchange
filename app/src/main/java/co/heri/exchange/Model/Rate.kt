@@ -21,5 +21,5 @@ data class Rate(
 
         @field:SerializedName("time")
         @ColumnInfo(name = "time")
-        val currency: Int? = null
+        val time: Long? = null
 )

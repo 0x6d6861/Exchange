@@ -3,22 +3,28 @@ package co.heri.exchange
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import co.heri.exchange.Model.Country
-import co.heri.exchange.Model.CountryRecyclerAdapter
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.room.Room
-import co.heri.exchange.Model.CountrySelectRecyclerAdapter
-import co.heri.exchange.Model.Currency
+import co.heri.exchange.Model.*
 import co.heri.exchange.Model.Dao.AppDatabase
+import co.heri.exchange.Model.Retrofit.Api
+import co.heri.exchange.Model.Retrofit.RateRequest
+import co.heri.exchange.Model.Retrofit.ServiceClient
+import com.google.gson.JsonObject
 import kotlin.concurrent.thread
 import kotlinx.android.synthetic.main.currency_select.view.*
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +34,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var list_country_adapter: CountryRecyclerAdapter
     private lateinit var select_country_adapter: CountrySelectRecyclerAdapter
     private lateinit var selectedCurrency: Currency
+    private lateinit var currencyApi: Api
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,12 +43,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        this.currencyApi = (ServiceClient.getRetrofitInstance(this))!!.create(Api::class.java)
+
+
 
         list_currencies.layoutManager = LinearLayoutManager(this);
         this.list_country_adapter = CountryRecyclerAdapter()
-
-
-
 
 
         list_currencies.addItemDecoration(DividerItemDecoration(this, 0))
@@ -62,6 +70,24 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         thread {
+
+            val call = this.currencyApi.getRate(RateRequest(from = "KES", to = "UGX"))
+
+            call.enqueue(object : Callback<Rate> {
+                override fun onResponse(call: Call<Rate>, response: Response<Rate>?) {
+                    if (response != null) {
+                        Log.i("RATES_", response.body().toString())
+                    }
+
+                }
+
+                override fun onFailure(call: Call<Rate>, t: Throwable) {
+                                    Log.e("ERROR_", t.toString());
+
+                }
+            })
+
+
             // DBHelper(this).readableDatabase
             this.database = Room.databaseBuilder(applicationContext,
                     AppDatabase::class.java, "database.db")
@@ -123,7 +149,7 @@ class MainActivity : AppCompatActivity() {
 
         builder.setView(dialogLayout)
 
-        val currencies: MutableList<Country> = mutableListOf<Country>();
+        val currencies: MutableList<Country> = mutableListOf<Country>()
 
         for(currency in savedCurrencies){
             currencies.add(Country(name = currency.entity ?: "Not set", currency = currency.alphabeticCode, amount = "658.45", flag = currency.flagpng ?: "No flag"))

@@ -9,40 +9,40 @@ import com.google.gson.annotations.SerializedName
 @Entity(tableName = "currencies")
 data class Currency(
 
-		@field:SerializedName("Entity")
-	@ColumnInfo(name = "entity")
-	val entity: String? = null,
+        @field:SerializedName("Entity")
+        @ColumnInfo(name = "entity")
+        val entity: String? = null,
 
-		@field:SerializedName("flag")
+        @field:SerializedName("flag")
         @ColumnInfo(name = "flag")
-	val flag: String? = null,
+        val flag: String? = null,
 
-		@field:SerializedName("flagpng")
+        @field:SerializedName("flagpng")
         @ColumnInfo(name = "flagpng")
-	val flagpng: String? = null,
+        val flagpng: String? = null,
 
-		@field:SerializedName("NumericCode")
+        @field:SerializedName("NumericCode")
         @ColumnInfo(name = "numericCode")
-	val numericCode: Double? = null,
+        val numericCode: Double? = null,
 
-		@field:SerializedName("Currency")
+        @field:SerializedName("Currency")
         @ColumnInfo(name = "currency")
-	val currency: String? = null,
+        val currency: String? = null,
 
         @PrimaryKey()
-		@NonNull
-		@field:SerializedName("AlphabeticCode")
+        @NonNull
+        @field:SerializedName("AlphabeticCode")
         @ColumnInfo(name = "alphabeticCode")
-	val alphabeticCode: String,
+        val alphabeticCode: String,
 
-		@field:SerializedName("WithdrawalDate")
+        @field:SerializedName("WithdrawalDate")
         @ColumnInfo(name = "withdrawalDate")
-	val withdrawalDate: String?,
+        val withdrawalDate: String?,
 
-		@field:SerializedName("MinorUnit")
+        @field:SerializedName("MinorUnit")
         @ColumnInfo(name = "minorUnit")
-	val minorUnit: String? = null,
+        val minorUnit: String? = null,
 
-		@ColumnInfo(name = "selected")
-		var selected: Boolean = false
+        @ColumnInfo(name = "selected")
+        var selected: Boolean = false
 )

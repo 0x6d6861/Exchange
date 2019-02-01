@@ -71,22 +71,6 @@ class MainActivity : AppCompatActivity() {
 
         thread {
 
-            val call = this.currencyApi.getRate(RateRequest(from = "KES", to = "UGX"))
-
-            call.enqueue(object : Callback<Rate> {
-                override fun onResponse(call: Call<Rate>, response: Response<Rate>?) {
-                    if (response != null) {
-                        Log.i("RATES_", response.body().toString())
-                    }
-
-                }
-
-                override fun onFailure(call: Call<Rate>, t: Throwable) {
-                                    Log.e("ERROR_", t.toString());
-
-                }
-            })
-
 
             // DBHelper(this).readableDatabase
             this.database = Room.databaseBuilder(applicationContext,
@@ -112,7 +96,7 @@ class MainActivity : AppCompatActivity() {
                 currencies.add(Country(name = currency.entity ?: "Not set", currency = currency.alphabeticCode, amount = "658.45", flag = currency.flagpng ?: "No flag"))
             }
 
-
+            this.updateRates()
             //Log.e("SAVED_", currencies.toString())
 
             runOnUiThread {
@@ -173,6 +157,36 @@ class MainActivity : AppCompatActivity() {
 
         builder.create()
         builder.show()
+
+    }
+
+    private fun updateRates(){
+
+            for (currency in this.savedCurrencies){
+
+                val call = this.currencyApi.getRate(RateRequest(from = this.selectedCurrency.alphabeticCode, to = currency.alphabeticCode))
+
+                call.enqueue(object : Callback<Rate> {
+                    override fun onResponse(call: Call<Rate>, response: Response<Rate>?) {
+                        if (response != null) {
+                            val rate  = response.body()
+                            if(rate != null){
+                                Log.i("RATES_", rate.toString())
+                                thread {
+                                    database.rateDao().insert(rate)
+                                }
+                            }
+                        }
+
+                    }
+
+                    override fun onFailure(call: Call<Rate>, t: Throwable) {
+                        Log.e("ERROR_", t.toString());
+
+                    }
+                })
+
+            }
 
     }
 }

@@ -13,7 +13,6 @@ import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.widget.SearchView
 import android.os.Build
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import co.heri.exchange.Model.Retrofit.Api
@@ -21,7 +20,6 @@ import co.heri.exchange.Model.Retrofit.ServiceClient
 import androidx.room.Room
 import co.heri.exchange.Model.Currency
 import co.heri.exchange.Model.Dao.AppDatabase
-import co.heri.exchange.Model.Rate
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,8 +33,8 @@ class CurrencyActivity : AppCompatActivity() {
     private lateinit var currencyApi: Api
     private lateinit var currenciesList: List<Currency>
 
-    private lateinit var alertBuilder: AlertDialog.Builder
 
+    private lateinit var alertDialog: AlertDialog.Builder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,13 +54,7 @@ class CurrencyActivity : AppCompatActivity() {
         currency_list.layoutManager = LinearLayoutManager(this)
         currency_list.itemAnimator = DefaultItemAnimator()
 
-        alertBuilder = AlertDialog.Builder(this)
-                .setPositiveButton("Ok"
-                ) { dialog, id ->
-                    // mListener.onDialogNegativeClick(this)
-                    dialog.cancel()
-                }
-
+        this@CurrencyActivity.alertDialog = AlertDialog.Builder(this@CurrencyActivity)
 
         thread {
 
@@ -84,36 +76,33 @@ class CurrencyActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        thread {
+        val call = this.currencyApi.getcurrencies
 
-            var call = this.currencyApi.getcurrencies
-            call.enqueue(object : Callback<List<Currency>> {
-                override fun onResponse(call: Call<List<Currency>>, response: Response<List<Currency>>?) {
-                    if (response != null) {
-                        currenciesList = response.body() ?: emptyList()
+        call.enqueue(object: Callback<List<Currency>> {
+            override fun onFailure(call: Call<List<Currency>>, t: Throwable) {
+                this@CurrencyActivity.alertDialog.apply {
+                    setTitle("Network Error")
+                    setMessage(t.message ?: "Unknown Error")
+                    create()
+                    show()
+                }
+            }
+
+            override fun onResponse(call: Call<List<Currency>>, response: Response<List<Currency>>) {
+                if(response.isSuccessful){
+                    thread {
+                        this@CurrencyActivity.currenciesList = response.body() ?: emptyList()
+                        this@CurrencyActivity.list_currency_adapter = CurrencyRecycler(this@CurrencyActivity.currenciesList, this@CurrencyActivity.database)
                         runOnUiThread {
-                            list_currency_adapter = CurrencyRecycler(currenciesList, database)
                             progressbarContainer.visibility = View.GONE
-                            currency_list.adapter = list_currency_adapter
+                            currency_list.adapter = this@CurrencyActivity.list_currency_adapter
                         }
                     }
-
                 }
+            }
 
-                override fun onFailure(call: Call<List<Currency>>, t: Throwable) {
-                    Log.e("ERROR_", t.toString())
+        })
 
-                    alertBuilder.apply {
-                        setTitle("Network Error")
-                        setMessage("Oops! Something work with the network")
-                        create()
-                        show()
-                    }
-                }
-            })
-
-
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

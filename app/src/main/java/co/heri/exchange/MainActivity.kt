@@ -1,6 +1,7 @@
 package co.heri.exchange
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -18,8 +19,10 @@ import co.heri.exchange.Model.Dao.AppDatabase
 import co.heri.exchange.Model.Retrofit.Api
 import co.heri.exchange.Model.Retrofit.RateRequest
 import co.heri.exchange.Model.Retrofit.ServiceClient
+import com.google.gson.JsonObject
 import kotlin.concurrent.thread
 import kotlinx.android.synthetic.main.currency_select.view.*
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -57,30 +60,7 @@ class MainActivity : AppCompatActivity() {
         change_link.setOnClickListener { view ->
             showDiag(this);
         }
-// DBHelper(this).readableDatabase
-        this.database = Room.databaseBuilder(applicationContext,
-                AppDatabase::class.java, "database.db")
-                .fallbackToDestructiveMigration()
-                .build()
-
-        thread {
-
-
-            this.updateDBState()
-            this.updateRates()
-            //this.updateRatesUI()
-            //Log.e("SAVED_", currencies.toString())
-
-            runOnUiThread {
-                //list_country_adapter.swapData(currencies)
-                list_currencies.adapter = list_country_adapter
-
-            }
-        }
-
     }
-
-
 
     override fun onDestroy() {
         this.database.close()
@@ -89,7 +69,56 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        this.updateRatesUI()
+
+        thread {
+
+
+            // DBHelper(this).readableDatabase
+            this.database = Room.databaseBuilder(applicationContext,
+                    AppDatabase::class.java, "database.db")
+                    .fallbackToDestructiveMigration()
+                    .build()
+
+            this.savedCurrencies = this.database.currencyDao().getCurrencies() as MutableList<Currency>
+
+
+
+            if(this.savedCurrencies.size > 0){
+                this.selectedCurrency = savedCurrencies.find { it.selected } ?: savedCurrencies.first()
+                this.savedCurrencies.remove(selectedCurrency);
+                runOnUiThread {
+                    currency_desc.text = "${selectedCurrency.alphabeticCode} - ${selectedCurrency.entity}"
+                }
+            }
+            this@MainActivity.updateRates()
+            //this@MainActivity.updateRatesUI()
+        }
+    }
+
+    private fun updateRatesUI(){
+        thread {
+            val currencies: MutableList<Country> = mutableListOf<Country>();
+
+            val rates = this.database.rateDao().getrates()
+
+
+            for(currency in this.savedCurrencies){
+                val rate = rates.find { it.symbol == selectedCurrency.alphabeticCode+currency.alphabeticCode }
+                rate.let {
+                    val converted = rate!!.rate!!.toDouble() * amount.text.toString().toDouble()
+                    currencies.add(Country(name = currency.entity ?: "Not set", currency = currency.alphabeticCode, amount = converted.toString(), flag = currency.flagpng ?: "No flag"))
+                }
+            }
+
+
+            //Log.e("SAVED_", currencies.toString())
+
+            runOnUiThread {
+                list_country_adapter.swapData(currencies)
+                list_currencies.adapter = list_country_adapter
+
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -127,6 +156,8 @@ class MainActivity : AppCompatActivity() {
         dialogLayout.select_country.layoutManager = LinearLayoutManager(this);
         this.select_country_adapter = CountrySelectRecyclerAdapter();
 
+
+
         runOnUiThread {
             select_country_adapter.swapData(currencies)
             dialogLayout.select_country.adapter = select_country_adapter
@@ -145,22 +176,8 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun updateDBState() {
-
-    }
-
     private fun updateRates(){
 
-        thread {
-
-            this.savedCurrencies = this.database.currencyDao().getCurrencies() as MutableList<Currency>
-            Log.e("SELECTED_", this.savedCurrencies.toString())
-
-            if(savedCurrencies.isEmpty()){
-                return@thread
-            }
-
-            this.selectedCurrency = savedCurrencies.find { it.selected } ?: savedCurrencies.first()
 
             for (currency in this.savedCurrencies){
 
@@ -176,51 +193,21 @@ class MainActivity : AppCompatActivity() {
                                     database.rateDao().insert(rate)
                                 }
                             }
+
+                           if(this@MainActivity.savedCurrencies.last().alphabeticCode == currency.alphabeticCode){
+                                this@MainActivity.updateRatesUI();
+                            }
                         }
 
                     }
 
                     override fun onFailure(call: Call<Rate>, t: Throwable) {
-                        Log.e("ERROR_", t.toString())
+                        Log.e("ERROR_", t.toString());
 
                     }
                 })
 
             }
-
-
-            val rates = this.database.rateDao().getrates();
-
-            val currencies: MutableList<Country> = mutableListOf<Country>()
-
-            if(this.savedCurrencies.size > 0){
-
-//                this.selectedCurrency = savedCurrencies.find { it.selected } ?: savedCurrencies.first()
-
-                for(currency in this.savedCurrencies){
-                    val rate = rates.findLast { it.symbol == selectedCurrency.alphabeticCode+currency.alphabeticCode }
-                    val converted = rate!!.rate!! * amount.text.toString().toDouble()
-                    currencies.add(Country(name = currency.entity ?: "Not set", currency = currency.alphabeticCode, amount = converted.toString(), flag = currency.flagpng ?: "No flag"))
-                }
-
-                //this.savedCurrencies.remove(selectedCurrency);
-                runOnUiThread {
-                    select_country_adapter.swapData(currencies)
-                    currency_desc.text = "${selectedCurrency.alphabeticCode} - ${selectedCurrency.entity}"
-                }
-            }
-
-
-
-        }
-
-
-
-    }
-
-    private fun updateRatesUI(){
-
-
 
     }
 }

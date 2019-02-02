@@ -74,7 +74,7 @@
             </LinearLayout>
 
             <EditText
-                android:id="@+id/editText"
+                android:id="@+id/amount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -83,7 +83,7 @@
                 android:drawableStart="@drawable/ic_attach_money_black_24dp"
                 android:ems="10"
                 android:hint="Amount"
-                android:inputType="numberSigned|number"
+                android:inputType="numberSigned|number|numberDecimal"
                 android:paddingStart="8dp"
                 android:paddingTop="4dp"
                 android:paddingEnd="4dp"

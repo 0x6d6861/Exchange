@@ -8,12 +8,11 @@ import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "rates")
 data class Rate(
-        @PrimaryKey(autoGenerate = true)
-        var id: Int = 0,
 
+        @PrimaryKey()
         @field:SerializedName("symbol")
         @ColumnInfo(name = "symbol")
-        val symbol: String? = null,
+        val symbol: String,
 
         @field:SerializedName("rate")
         @ColumnInfo(name = "rate")

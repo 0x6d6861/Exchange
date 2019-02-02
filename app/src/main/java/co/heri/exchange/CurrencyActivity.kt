@@ -57,7 +57,6 @@ class CurrencyActivity : AppCompatActivity() {
         currency_list.itemAnimator = DefaultItemAnimator()
 
         alertBuilder = AlertDialog.Builder(this)
-        alertBuilder.setTitle("Network Error")
                 .setPositiveButton("Ok"
                 ) { dialog, id ->
                     // mListener.onDialogNegativeClick(this)
@@ -92,8 +91,8 @@ class CurrencyActivity : AppCompatActivity() {
                 override fun onResponse(call: Call<List<Currency>>, response: Response<List<Currency>>?) {
                     if (response != null) {
                         currenciesList = response.body() ?: emptyList()
-                        list_currency_adapter = CurrencyRecycler(currenciesList, database)
                         runOnUiThread {
+                            list_currency_adapter = CurrencyRecycler(currenciesList, database)
                             progressbarContainer.visibility = View.GONE
                             currency_list.adapter = list_currency_adapter
                         }
